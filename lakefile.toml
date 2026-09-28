@@ -1,0 +1,28 @@
+name = "datastar"
+version = "0.1.0"
+description = "Lean 4 SDK for Datastar: real-time hypermedia over server-sent events."
+homepage = "https://github.com/carlohamalainen/datastar-lean"
+keywords = ["datastar", "hypermedia", "sse", "http", "web"]
+license = "MIT"
+builtinLint = true
+defaultTargets = ["Datastar", "hello-world", "hello-world-channel", "activity-feed", "e2e-server"]
+
+[[lean_lib]]
+name = "Datastar"
+
+[[lean_exe]]
+name = "hello-world"
+root = "Examples.HelloWorld"
+
+[[lean_exe]]
+name = "hello-world-channel"
+root = "Examples.HelloWorldChannel"
+
+[[lean_exe]]
+name = "activity-feed"
+root = "Examples.ActivityFeed"
+
+# Serves the page that the Playwright tests in e2e/ drive.
+[[lean_exe]]
+name = "e2e-server"
+root = "Test.E2EServer"

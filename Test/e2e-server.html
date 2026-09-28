@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>datastar-lean e2e tests</title>
+    <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.3/bundles/datastar.js"></script>
+</head>
+<body data-signals="{}">
+    <h1>datastar-lean E2E Test Page</h1>
+
+    <section id="patch-elements-test">
+        <h2>Patch Elements</h2>
+        <button id="pe-trigger" data-on:click="@get('/sse/patch-elements')">Trigger</button>
+        <div id="pe-result">Waiting...</div>
+    </section>
+
+    <section id="patch-signals-test" data-signals:message="'Waiting...'">
+        <h2>Patch Signals</h2>
+        <button id="ps-trigger" data-on:click="@get('/sse/patch-signals')">Trigger</button>
+        <div id="ps-result" data-text="$message">Waiting...</div>
+    </section>
+
+    <section id="execute-script-test">
+        <h2>Execute Script</h2>
+        <button id="es-trigger" data-on:click="@get('/sse/execute-script')">Trigger</button>
+        <div id="es-result">Waiting...</div>
+    </section>
+
+    <section id="read-signals-test" data-signals:greeting="'Hello from Browser'">
+        <h2>Read Signals</h2>
+        <button id="rs-trigger" data-on:click="@get('/sse/read-signals')">Trigger</button>
+        <div id="rs-result">Waiting...</div>
+    </section>
+
+    <section id="multiple-events-test">
+        <h2>Multiple Events</h2>
+        <button id="me-trigger" data-on:click="@get('/sse/multiple-events')">Trigger</button>
+        <div id="me-result">Waiting...</div>
+    </section>
+</body>
+</html>
