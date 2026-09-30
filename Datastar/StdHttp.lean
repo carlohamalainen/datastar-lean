@@ -19,8 +19,8 @@ def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   match ← readSignals (α := Signals) req with
   | .error err => Response.badRequest |>.text err
   | .ok signals =>
-    sseResponse fun gen =>
-      gen.send <| patchElements s!"<div id=\"count\">{signals.count}</div>"
+    sseResponse fun sse =>
+      sse.send <| patchElements s!"<div id=\"count\">{signals.count}</div>"
 ```
 -/
 
@@ -45,36 +45,36 @@ structure ServerSentEventGenerator where
 
 namespace ServerSentEventGenerator
 
-private def withLock (gen : ServerSentEventGenerator) (action : Async α) : Async α := do
-  let p ← gen.lock.acquire
+private def withLock (sse : ServerSentEventGenerator) (action : Async α) : Async α := do
+  let p ← sse.lock.acquire
   let res : Option Unit ← await p.result?
 
   match res with
     | none => throw (IO.userError "SSE generator lock was dropped")
-    | some _ => try action finally gen.lock.release
+    | some _ => try action finally sse.lock.release
 
-private def encode (gen : ServerSentEventGenerator) (bytes : ByteArray) : IO ByteArray := do
-  let some encoder := gen.encoder | return bytes
-  if ← gen.finished.get then
+private def encode (sse : ServerSentEventGenerator) (bytes : ByteArray) : IO ByteArray := do
+  let some encoder := sse.encoder | return bytes
+  if ← sse.finished.get then
     throw (IO.userError "SSE stream has ended")
   encoder.compress bytes
 
-private def finish (gen : ServerSentEventGenerator) : Async Unit := do
-  let some encoder := gen.encoder | return
-  gen.withLock do
-    gen.finished.set true
-    gen.stream.send { data := ← encoder.finish }
+private def finish (sse : ServerSentEventGenerator) : Async Unit := do
+  let some encoder := sse.encoder | return
+  sse.withLock do
+    sse.finished.set true
+    sse.stream.send { data := ← encoder.finish }
 
 /--
 Send a `PatchElements`, `PatchSignals` or `ExecuteScript` event.
 
 Throws once the client has gone away.
 -/
-def send [ToEvent α] (gen : ServerSentEventGenerator) (x : α) : Async Unit := do
+def send [ToEvent α] (sse : ServerSentEventGenerator) (x : α) : Async Unit := do
   let event := toEvent x
   let text := renderEvent event
-  gen.withLock do
-    gen.stream.send { data := ← gen.encode text.toUTF8 }
+  sse.withLock do
+    sse.stream.send { data := ← sse.encode text.toUTF8 }
 
 end ServerSentEventGenerator
 
@@ -107,11 +107,11 @@ private def sseResponseCore
       pure (builder.header Header.Name.contentEncoding encoding, some encoder)
 
   builder.stream fun stream => do
-    let gen : ServerSentEventGenerator := {stream, lock, encoder, finished}
+    let sse : ServerSentEventGenerator := {stream, lock, encoder, finished}
     try
-      ContextAsync.runIn ctx (callback gen)
+      ContextAsync.runIn ctx (callback sse)
     finally
-      try gen.finish catch _ => pure ()
+      try sse.finish catch _ => pure ()
 
 /--
 A response that streams SSE events. The connection stays open until `callback` returns.

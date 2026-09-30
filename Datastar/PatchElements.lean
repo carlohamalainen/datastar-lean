@@ -6,15 +6,15 @@ Patch elements: the server sends complete HTML elements and the browser morphs t
 Without a `selector`, each top-level element needs an `id`.
 
 ```lean
-gen.send <| patchElements "<div id=\"count\">42</div>"
-gen.send <| patchElements "<li>new item</li>" (selector := "#todo-list") (mode := .append)
-gen.send <| removeElements "#flash-message"
+sse.send <| patchElements "<div id=\"count\">42</div>"
+sse.send <| patchElements "<li>new item</li>" (selector := "#todo-list") (mode := .append)
+sse.send <| removeElements "#flash-message"
 ```
 
 Animate the update with a View Transition, optionally scoped to one element:
 
 ```lean
-gen.send <| patchElements "<div id=\"feed\">...</div>"
+sse.send <| patchElements "<div id=\"feed\">...</div>"
   (useViewTransition := true) (viewTransitionSelector := "#main")
 ```
 -/

@@ -34,9 +34,9 @@ def indexHtml : String := include_str "hello-world-channel.html"
 Animate character by character; returns early if the version changes (i.e. Start was clicked),
 letting the caller restart from the beginning.
 -/
-def animate (gen : ServerSentEventGenerator) (state : SharedState) (settings : Settings) : ContextAsync Unit := do
+def animate (sse : ServerSentEventGenerator) (state : SharedState) (settings : Settings) : ContextAsync Unit := do
   for i in [0:message.length + 1] do
-    gen.send <| patchElements s!"<div id='message'>{message.take i}</div>"
+    sse.send <| patchElements s!"<div id='message'>{message.take i}</div>"
     -- Race the delay against a version change
     let delay ← Selector.sleep (.ofNat settings.delay)
     let interrupted ← Selectable.one #[.case delay fun _ => pure false, .case state.changed.selector fun _ => pure true]
@@ -53,9 +53,9 @@ def setDelay (state : SharedState) (req : Request Body.Stream) : ContextAsync (R
     sseResponse fun _ => pure ()
 
 def helloWorld (state : SharedState) : ContextAsync (Response Body.Any) :=
-  sseResponse fun gen => do
+  sseResponse fun sse => do
     repeat
-      animate gen state (← state.settings.get)
+      animate sse state (← state.settings.get)
 
 def app (state : SharedState) (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   match req.line.method, toString req.line.uri.path with

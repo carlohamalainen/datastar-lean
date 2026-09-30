@@ -60,25 +60,25 @@ def generate (req : Request Body.Stream) : ContextAsync (Response Body.Any) := d
   | .error err =>
     Response.badRequest |>.text s!"Bad signals: {err}"
   | .ok signals =>
-    sseResponse fun gen => do
-      gen.send <| patchSignals "{\"generating\": true}"
+    sseResponse fun sse => do
+      sse.send <| patchSignals "{\"generating\": true}"
 
       for i in [1:signals.events + 1] do
         let total := signals.total + i
         let done := signals.done + i
         let html ← eventEntry .done total "Auto"
-        gen.send <| patchElements html (selector := "#feed") (mode := .after)
-        gen.send <| patchSignals s!"\{\"total\": {total}, \"done\": {done}}"
+        sse.send <| patchElements html (selector := "#feed") (mode := .after)
+        sse.send <| patchSignals s!"\{\"total\": {total}, \"done\": {done}}"
         sleep (.ofNat signals.interval)
 
-      gen.send <| patchSignals "{\"generating\": false}"
+      sse.send <| patchSignals "{\"generating\": false}"
 
 def event (status : EventStatus) (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   match ← readSignals (α := Signals) req with
   | .error err =>
     Response.badRequest |>.text s!"Bad signals: {err}"
   | .ok signals =>
-    sseResponse fun gen => do
+    sseResponse fun sse => do
       let total := signals.total + 1
       let counter :=
         match status with
@@ -86,10 +86,10 @@ def event (status : EventStatus) (req : Request Body.Stream) : ContextAsync (Res
         | .warn => s!"\"warn\": {signals.warn + 1}"
         | .fail => s!"\"fail\": {signals.fail + 1}"
         | .info => s!"\"info\": {signals.info + 1}"
-      gen.send <| patchSignals s!"\{\"total\": {total}, {counter}}"
+      sse.send <| patchSignals s!"\{\"total\": {total}, {counter}}"
 
       let html ← eventEntry status total "Manual"
-      gen.send <| patchElements html (selector := "#feed") (mode := .after)
+      sse.send <| patchElements html (selector := "#feed") (mode := .after)
 
 def app (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   match req.line.method, (toString req.line.uri.path).splitOn "/" with

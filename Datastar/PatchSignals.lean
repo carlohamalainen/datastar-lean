@@ -7,8 +7,8 @@ The payload is a JSON object with JSON Merge Patch semantics: a key updates the 
 removes it, an absent key leaves it alone.
 
 ```lean
-gen.send <| patchSignals "{\"count\": 42}"
-gen.send <| patchSignals "{\"name\": \"default\"}" (onlyIfMissing := true)
+sse.send <| patchSignals "{\"count\": 42}"
+sse.send <| patchSignals "{\"name\": \"default\"}" (onlyIfMissing := true)
 ```
 -/
 
