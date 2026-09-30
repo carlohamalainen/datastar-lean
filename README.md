@@ -12,7 +12,7 @@ This package is licensed for free under the [MIT License](LICENSE).
 
 - **No dependencies** -- only Lean's standard library.
 - **Std.Http streaming** -- `sseResponse` gives you a `ServerSentEventGenerator`
-callback, and `gen.send` takes any event.
+callback, and `sse.send` takes any event.
 
 ## API Overview
 
@@ -63,8 +63,8 @@ open Datastar
 def app (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   match req.line.method, toString req.line.uri.path with
   | .get, "/hello" =>
-    sseResponse fun gen =>
-      gen.send <| patchElements "<div id=\"message\">Hello!</div>"
+    sseResponse fun sse =>
+      sse.send <| patchElements "<div id=\"message\">Hello!</div>"
   | _, _ => Response.notFound |>.text "Not found"
 
 def main : IO Unit := Async.block do
@@ -79,8 +79,8 @@ def main : IO Unit := Async.block do
 the compressors in preference order:
 
 ```lean
-sseResponseWith [brotli, gzip] req fun gen =>
-  gen.send <| patchElements "<div id=\"message\">Hello!</div>"
+sseResponseWith [brotli, gzip] req fun sse =>
+  sse.send <| patchElements "<div id=\"message\">Hello!</div>"
 ```
 
 If the client accepts none of them, the stream is sent uncompressed.

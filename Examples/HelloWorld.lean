@@ -20,9 +20,9 @@ def helloWorld (req : Request Body.Stream) : ContextAsync (Response Body.Any) :=
   | .error err =>
     Response.badRequest |>.text s!"Bad signals: {err}"
   | .ok signals =>
-    sseResponse fun gen => do
+    sseResponse fun sse => do
       for i in [1:message.length + 1] do
-        gen.send <| patchElements s!"<div id='message'>{message.take i}</div>"
+        sse.send <| patchElements s!"<div id='message'>{message.take i}</div>"
         sleep (.ofNat signals.delay)
 
 def app (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do

@@ -19,8 +19,8 @@ open Datastar
 def app (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   match req.line.method, toString req.line.uri.path with
   | .get, "/hello" =>
-    sseResponse fun gen =>
-      gen.send <| patchElements "<div id=\"message\">Hello!</div>"
+    sseResponse fun sse =>
+      sse.send <| patchElements "<div id=\"message\">Hello!</div>"
   | _, _ => Response.notFound |>.text "Not found"
 
 def main : IO Unit := Async.block do

@@ -17,26 +17,26 @@ def app (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
   match req.line.method, toString req.line.uri.path with
   | .get, "/" => Response.ok |>.html testPage
   | .get, "/sse/patch-elements" =>
-    sseResponse fun gen =>
-      gen.send <| patchElements "<div id=\"pe-result\">Patched Content</div>"
+    sseResponse fun sse =>
+      sse.send <| patchElements "<div id=\"pe-result\">Patched Content</div>"
   | .get, "/sse/patch-signals" =>
-    sseResponse fun gen =>
-      gen.send <| patchSignals "{\"message\":\"Signal Updated\"}"
+    sseResponse fun sse =>
+      sse.send <| patchSignals "{\"message\":\"Signal Updated\"}"
   | .get, "/sse/execute-script" =>
-    sseResponse fun gen =>
-      gen.send <| executeScript "document.getElementById('es-result').textContent = 'Script Executed'"
+    sseResponse fun sse =>
+      sse.send <| executeScript "document.getElementById('es-result').textContent = 'Script Executed'"
   | .get, "/sse/read-signals" =>
-    sseResponse fun gen => do
+    sseResponse fun sse => do
       match ← readSignals (α := Greeting) req with
       | .ok signals =>
-        gen.send <| patchElements s!"<div id=\"rs-result\">{signals.greeting}</div>"
+        sse.send <| patchElements s!"<div id=\"rs-result\">{signals.greeting}</div>"
       | .error err =>
-        gen.send <| patchElements s!"<div id=\"rs-result\">Error: {err}</div>"
+        sse.send <| patchElements s!"<div id=\"rs-result\">Error: {err}</div>"
   | .get, "/sse/multiple-events" =>
-    sseResponse fun gen => do
-      gen.send <| patchElements "<div id=\"me-result\">Event 1</div>"
-      gen.send <| patchElements "<div id=\"me-result\">Event 2</div>"
-      gen.send <| patchElements "<div id=\"me-result\">Event 3</div>"
+    sseResponse fun sse => do
+      sse.send <| patchElements "<div id=\"me-result\">Event 1</div>"
+      sse.send <| patchElements "<div id=\"me-result\">Event 2</div>"
+      sse.send <| patchElements "<div id=\"me-result\">Event 3</div>"
   | _, _ => Response.notFound |>.text "Not found"
 
 def main : IO Unit := Async.block do

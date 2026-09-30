@@ -6,8 +6,8 @@ Execute script: run JavaScript in the browser.
 Datastar appends a `<script>` tag to `<body>`.
 
 ```lean
-gen.send <| executeScript "window.location = \"/dashboard\""
-gen.send <| executeScript "import(\"/chart.js\").then(m => m.render())" (attributes := #["type=\"module\""])
+sse.send <| executeScript "window.location = \"/dashboard\""
+sse.send <| executeScript "import(\"/chart.js\").then(m => m.render())" (attributes := #["type=\"module\""])
 ```
 -/
 
