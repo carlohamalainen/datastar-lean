@@ -110,8 +110,8 @@ def defaultNamespace : ElementNamespace := .html
 /--
 The low-level form of an event: the fields of one SSE message.
 
-Prefer `patchElements`, `patchSignals` or `executeScript`. A hand-built event is sent as given, so
-`eventId` and each entry of `dataLines` must be a single line.
+Prefer `patchElements`, `patchSignals` or `executeScript`. Line breaks in `eventId` and
+`dataLines` are rendered as spaces, so a value cannot start a new SSE field.
 -/
 structure DatastarEvent where
   /-- The SSE `event` field. -/
@@ -137,14 +137,21 @@ instance : ToEvent DatastarEvent := ⟨id⟩
 
 /--
 Split lines like Haskell's `Data.Text.lines`; a trailing newline does
-not produce an empty line.
+not produce an empty line. As in SSE, `\r\n`, `\r` and `\n` all end a line.
 
 * `lines "" = #[]`
 * `lines "a\n" = #["a"]`
 * `lines "a\n\nb" = #["a", "", "b"]`
+* `lines "a\r\nb\rc" = #["a", "b", "c"]`
 -/
 def lines (s : String) : Array String :=
-  let parts := (s.splitOn "\n").toArray
+  let parts := ((s.replace "\r\n" "\n").replace "\r" "\n").splitOn "\n" |>.toArray
   if parts.back? == some "" then parts.pop else parts
+
+/--
+Replace line breaks with spaces, for values that must stay on one SSE line.
+-/
+def oneLine (s : String) : String :=
+  s.map fun c => if c == '\n' || c == '\r' then ' ' else c
 
 end Datastar
