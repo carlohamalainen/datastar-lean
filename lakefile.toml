@@ -5,6 +5,7 @@ homepage = "https://github.com/carlohamalainen/datastar-lean"
 keywords = ["datastar", "hypermedia", "sse", "http", "web"]
 license = "MIT"
 builtinLint = true
+testDriver = "UnitTests"
 defaultTargets = ["Datastar", "hello-world", "hello-world-channel", "activity-feed", "e2e-server"]
 
 [[lean_lib]]
@@ -26,3 +27,8 @@ root = "Examples.ActivityFeed"
 [[lean_exe]]
 name = "e2e-server"
 root = "Test.E2EServer"
+
+# `lake test`: the `#guard` checks in Test/Unit.lean run when it compiles.
+[[lean_lib]]
+name = "UnitTests"
+roots = ["Test.Unit"]
