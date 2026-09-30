@@ -104,6 +104,15 @@ Then open <http://127.0.0.1:3000>. Each example takes the port as an optional ar
 | `hello-world-channel` | State shared between connections; Start restarts the animation on every open page. |
 | `activity-feed` | `patchSignals` with `patchElements`; `@post` requests with signals in the body. |
 
+## SDK tests
+
+The official [Datastar SDK test suite](https://github.com/starfederation/datastar/tree/main/sdk/tests)
+runs against `sdk-test-server` (`Test/SdkTestServer.lean`, port 7331). It needs Go:
+
+```
+scripts/test-sdk.sh
+```
+
 ## End-to-end tests
 
 Playwright drives a browser against `e2e-server` (`Test/E2EServer.lean`, port 3113), which it
