@@ -47,3 +47,23 @@ jobs:
         with:
           name: playwright-results
           path: e2e/test-results/
+
+  sdk-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build sdk-test-server
+        uses: leanprover/lean-action@v1
+        with:
+          build-args: "sdk-test-server"
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Run official Datastar SDK tests
+        run: ./scripts/test-sdk.sh
