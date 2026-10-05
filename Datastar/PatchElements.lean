@@ -1,4 +1,8 @@
-import Datastar.Types
+module
+
+public import Datastar.Types
+
+public section
 
 /-!
 Patch elements: the server sends complete HTML elements and the browser morphs them into the DOM.

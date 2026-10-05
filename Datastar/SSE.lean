@@ -1,4 +1,8 @@
-import Datastar.Types
+module
+
+public import Datastar.Types
+
+public section
 
 /-!
 Rendering of events in the SSE wire format.

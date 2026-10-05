@@ -1,4 +1,8 @@
-import Datastar.Types
+module
+
+public import Datastar.Types
+
+public section
 
 /-!
 Execute script: run JavaScript in the browser.

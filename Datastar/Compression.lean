@@ -1,3 +1,7 @@
+module
+
+public section
+
 /-!
 Compression of SSE streams: the codec interface and `Content-Encoding` negotiation.
 

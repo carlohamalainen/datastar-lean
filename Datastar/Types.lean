@@ -1,3 +1,7 @@
+module
+
+public section
+
 /-!
 Types and defaults of the Datastar SSE protocol, as specified by the
 [ADR](https://github.com/starfederation/datastar/blob/develop/sdk/ADR.md).

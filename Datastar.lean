@@ -1,10 +1,7 @@
-import Datastar.Types
-import Datastar.PatchElements
-import Datastar.PatchSignals
-import Datastar.ExecuteScript
-import Datastar.SSE
-import Datastar.Compression
-import Datastar.StdHttp
+module
+
+public import Datastar.Core
+public import Datastar.LeanJson
 
 /-!
 Lean SDK for [Datastar](https://data-star.dev/): the server holds an SSE stream open and pushes
@@ -32,7 +29,9 @@ def main : IO Unit := Async.block do
 * `Datastar.PatchElements` — send HTML to morph into the DOM
 * `Datastar.PatchSignals` — update the browser's reactive signals
 * `Datastar.ExecuteScript` — run JavaScript in the browser
-* `Datastar.StdHttp` — SSE streaming and signal decoding
+* `Datastar.StdHttp` — SSE streaming, and the signals a request carries as JSON text
+* `Datastar.LeanJson` — signals decoded with `Lean.Data.Json`; leave it out, by importing
+  `Datastar.Core`, to avoid linking the Lean frontend
 * `Datastar.Compression` — the codec interface and `Content-Encoding` negotiation
 * `Datastar.SSE` — the wire format
 * `Datastar.Types` — protocol types and defaults

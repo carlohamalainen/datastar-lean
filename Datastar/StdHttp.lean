@@ -1,31 +1,21 @@
-import Std.Http
-import Lean.Data.Json
-import Datastar.Types
-import Datastar.SSE
-import Datastar.Compression
+module
+
+public import Std.Http
+public import Datastar.Types
+public import Datastar.SSE
+public import Datastar.Compression
+
+public section
 
 /-!
-SSE streaming and signal decoding on `Std.Http`.
+SSE streaming on `Std.Http`, and the signals a request carries.
 
 The browser sends its signals as JSON: in the `datastar` query parameter for GET and DELETE, in
-the request body otherwise.
-
-```lean
-structure Signals where
-  count : Nat
-deriving Lean.FromJson
-
-def handler (req : Request Body.Stream) : ContextAsync (Response Body.Any) := do
-  match ← readSignals (α := Signals) req with
-  | .error err => Response.badRequest |>.text err
-  | .ok signals =>
-    sseResponse fun sse =>
-      sse.send <| patchElements s!"<div id=\"count\">{signals.count}</div>"
-```
+the request body otherwise. `signalsText` returns that JSON as text, for any JSON library to
+read; `Datastar.LeanJson` decodes it with `Lean.Data.Json`.
 -/
 
 open Std Async Http
-open Lean (FromJson)
 
 namespace Datastar
 
@@ -131,37 +121,34 @@ def sseResponseWith
     ContextAsync (Response Body.Any) :=
   sseResponseCore (negotiate compressors (clientEncodings req) strategy) callback
 
-private def decodeJson [FromJson α] (raw : String) : Except String α := do
-  let j ← Lean.Json.parse raw
-  Lean.fromJson? j
-
 /--
-Decode signals from the `datastar` query parameter.
+The signals in the `datastar` query parameter, as the JSON text the browser sent.
 -/
-def signalsFromQuery [FromJson α] (req : Request β) : Except String α := do
+def signalsTextFromQuery (req : Request β) : Except String String := do
   let some (some encoded) := req.line.uri.query.find? "datastar"
     | throw "missing 'datastar' query parameter"
   let some raw := encoded.decode
     | throw "'datastar' query parameter is not valid percent-encoded UTF-8"
-  decodeJson raw
+  return raw
 
 /--
-Decode signals from the request body.
+The signals in the request body, as the JSON text the browser sent.
 -/
-def signalsFromBody [FromJson α] (req : Request Body.Stream) : ContextAsync (Except String α) := do
+def signalsTextFromBody (req : Request Body.Stream) : ContextAsync (Except String String) := do
   try
     let raw : String ← req.body.readAll
-    return decodeJson raw
+    return .ok raw
   catch e =>
     return .error s!"could not read request body: {e}"
 
 /--
-Decode the signals sent by the browser: from the query for GET and DELETE, from the body otherwise.
+The signals the browser sent, as JSON text: from the query for GET and DELETE, from the body
+otherwise.
 -/
-def readSignals [FromJson α] (req : Request Body.Stream) : ContextAsync (Except String α) :=
+def signalsText (req : Request Body.Stream) : ContextAsync (Except String String) :=
   if req.line.method == .get || req.line.method == .delete then
-    pure (signalsFromQuery req)
+    pure (signalsTextFromQuery req)
   else
-    signalsFromBody req
+    signalsTextFromBody req
 
 end Datastar

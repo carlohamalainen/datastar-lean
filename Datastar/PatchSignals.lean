@@ -1,4 +1,8 @@
-import Datastar.Types
+module
+
+public import Datastar.Types
+
+public section
 
 /-!
 Patch signals: update the browser's reactive state.

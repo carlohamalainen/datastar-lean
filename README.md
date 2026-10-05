@@ -35,9 +35,15 @@ executeScript  : String → ExecuteScript
 -- Send an event
 ServerSentEventGenerator.send : [ToEvent α] → ServerSentEventGenerator → α → Async Unit
 
--- Read signals from a request
+-- Read signals from a request, as JSON text, or decoded with Lean.Data.Json
+signalsText : Request Body.Stream → ContextAsync (Except String String)
 readSignals : [FromJson α] → Request Body.Stream → ContextAsync (Except String α)
 ```
+
+The library is built on Lean's module system, so a `module` can import it. `readSignals` lives in
+`Datastar.LeanJson`, which `import Datastar` includes; `Lean.Data.Json` is part of the Lean
+frontend, and linking it makes a one-line program 104 MB rather than 1.4 MB. A program that reads
+JSON another way imports `Datastar.Core` instead and decodes `signalsText`.
 
 ## Quick Start
 
